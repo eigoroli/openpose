@@ -1,0 +1,23 @@
+html {
+  background-image: url('back.png');
+  background-size: cover;
+}
+
+#gray {
+		position:			fixed;
+		top:				0;
+		left:				0;
+		height:				100%;
+		width:				100%;
+		background:			gray;
+		opacity:			0.8;
+		z-index:			1;
+}
+
+.bg-text {
+
+  text-align: center;
+  color: white;
+  font-size: 7.0em;
+  padding-top: 100px;
+}

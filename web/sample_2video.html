@@ -1,0 +1,219 @@
+<!-- @import url(http://fonts.googleapis.com/earlyaccess/notosansjp.css) -->
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>OSS Exercise</title>
+
+    <!-- Compiled and minified CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/css/materialize.min.css">
+    <!-- Compiled and minified JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0-rc.2/js/materialize.min.js"></script>
+    <!--Import Google Icon Font-->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <!--Import materialize.css-->
+    <!-- <link type="text/css" rel="stylesheet" href="css/materialize.min.css"  media="screen,projection"/> -->
+    <!--Let browser know website is optimized for mobile-->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <!--JavaScript at end of body for optimized loading-->
+    <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+
+    <link rel="stylesheet" type="text/css" href="mysheet.css">
+
+    <div class="navbar-fixed">
+    <nav class="brown lighten-1" role="navigation">
+      <div class="nav-wrapper">
+          <a href="sample_1top.html" class="brand-logo">
+            <img src="logo.png" height="70px"/>
+          </a>
+      <ul id="nav-mobile" class="right hide-on-med-and-down">
+      <li><a href="sample_2video.html">Start Exercise</a></li>
+      </ul>
+      </div>
+    </nav>
+    </div>
+
+</head>
+<body>
+
+    <div class="row">
+      <div class="col s12 center"
+        style="position: absolute; top:12%;">
+
+        <a class="btn-floating btn-large waves-effect waves-light red"
+        onclick="startVideo()" style="position: absolute; top:8%; left:7%;">
+          <i class="material-icons">
+            videocam
+          </i>
+        </a>
+
+        <br />
+        <video id="local_video" width="480px" height="360px" autoplay="1" style="border: 1px solid;"></video>
+        <video id="demo_video" height="360px" src="demo.mp4" type="video/mp4"></video>
+        <br />
+
+        <button id="bbb" class="waves-effect btn brown lighten-2"
+        type="button" onclick="startRecording()">
+        <i class= "material-icons right">
+          videocam
+        </i>
+          録画開始
+        </button>
+
+        &nbsp;
+
+        <button id="bbb" class="waves-effect btn brown lighten-2"
+        type="button" onclick="stopRecording()">
+        <i class= "material-icons right">
+          videocam
+        </i>
+          録画終了
+        </button>
+
+        &nbsp;
+
+        <a href="#" id="downloadlink"
+        class="download btn-floating btn-large waves-effect waves-light red">
+          <i class="material-icons">
+            cloud_upload
+          </i>
+          送信
+        </a>
+
+      </div>
+      <div class="col s12 center"
+        style="position: absolute; top:85%;">
+
+        <button id="bbb" class="waves-effect btn-large brown lighten-1"
+        type="button" onclick="change()">
+        <i class= "material-icons right">
+          done
+        </i>
+          採点開始
+        </button>
+
+        <br>
+
+        <video id="playback_video"
+        width="0px" height="0px" autoplay="1" style="border: 1px solid;"></video>
+
+      </div>
+
+    </div>
+
+    <script>
+    navigator.getUserMedia  = navigator.getUserMedia    || navigator.webkitGetUserMedia ||
+                         navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+    var localVideo =  document.getElementById('local_video');
+    var playbackVideo =  document.getElementById('playback_video');
+    var demoVideo = document.getElementById('demo_video');
+    var anchor = document.getElementById('downloadlink');
+    var localStream = null;
+    var recorder =  null;
+    var blobUrl = null;
+
+    function startRecording() {
+
+      recorder = new MediaRecorder(localStream);
+      recorder.ondataavailable = function(evt) {
+        var videoBlob = new Blob([evt.data], { type: evt.data.type });
+        blobUrl = window.URL.createObjectURL(videoBlob);
+        playbackVideo.src = blobUrl;
+        playbackVideo.onended = function() {
+          playbackVideo.pause();
+          playbackVideo.src = "";
+        };
+
+        anchor.download = 'recorded.webm';
+        anchor.href = blobUrl;
+
+        playbackVideo.play();
+      }
+
+      recorder.start();
+      demoVideo.play();
+    }
+
+    function stopRecording() {
+      if (recorder) {
+        recorder.stop();
+      }
+    }
+
+    function playRecorded() {
+      if (blobUrl) {
+        playbackVideo.src = blobUrl;
+        playbackVideo.onended = function() {
+        playbackVideo.pause();
+        playbackVideo.src = "";
+      };
+
+      playbackVideo.play();
+      }
+    }
+
+    // Request the usermedia
+    function startVideo() {
+      navigator.getUserMedia({video: true, audio: false}, showMedia, errCallback);
+
+    }
+
+    function showMedia(stream) {
+      localStream  = stream;
+      //Video.srcObject = stream;
+      localVideo.src = window.URL.createObjectURL(stream);
+    }
+
+    var errCallback = function(e) {
+      console.log('media error', e);
+    };
+
+    function stopVideo() {
+      if (localStream) {
+        localVideo.pause();
+        localVideo.src = "";
+
+        localStream.stop();
+        localStream = null;
+      }
+    }
+
+    // setIntervalを使う方法
+    function sleep2(waitSec, callbackFunc) {
+
+        // 経過時間（秒）
+        var spanedSec = 0;
+
+        // 1秒間隔で無名関数を実行
+        var id = setInterval(function () {
+
+            spanedSec++;
+
+            // 経過時間 >= 待機時間の場合、待機終了。
+            if (spanedSec >= waitSec) {
+
+                // タイマー停止
+                clearInterval(id);
+
+                // 完了時、コールバック関数を実行
+                if (callbackFunc) {
+                    callbackFunc();
+                }
+            }
+        }, 1000);
+    }
+
+
+    </script>
+
+    <script type="text/javascript" src="/eel.js"></script>
+    <script type="text/javascript">
+
+       function change() {
+           alert("採点を開始しました\nしばらくお待ち下さい")
+           eel.setScore()
+       }
+    </script>
+
+</body>
+</html>
